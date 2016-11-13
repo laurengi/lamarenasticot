@@ -12,6 +12,7 @@ public class gameManager : MonoBehaviour
     public GameObject playableArea;
     public GameObject wallModel;
     public GameObject playerUIModel;
+    public GameObject fireSound;
 
     private GameObject[] walls;
     private GameObject[] players;
@@ -480,6 +481,8 @@ public class gameManager : MonoBehaviour
         int shooterId = i_shooter.GetComponent<playerController>().playerId;
         missile.GetComponent<missileController>().shooterId = shooterId;
         playerUIs[shooterId].GetComponent<playerUI>().loseApple();
+        AudioSource audioSource = fireSound.GetComponent<AudioSource>();
+        audioSource.PlayOneShot(audioSource.clip);
     }
 
 
