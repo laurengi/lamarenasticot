@@ -3,6 +3,7 @@ using System.Collections;
 
 public class playerController : MonoBehaviour
 {
+    public int playerId = -1;
 
     public GameObject playerObject;
     public float playerSpeed;
@@ -20,7 +21,7 @@ public class playerController : MonoBehaviour
     private bool playerMoving;
     private float playerMovingAngle;
     private float playerMovingStartTime;
-
+    
     // Use this for initialization
     void Start()
     {
@@ -136,6 +137,17 @@ public class playerController : MonoBehaviour
             }
 
             playerMoving = true;
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        // TODO : store gm in private member and fill it in Start()
+        Debug.Log("OnTriggerEnter");
+        gameManager gm = FindObjectOfType<gameManager>();
+        if (other.gameObject.CompareTag("Apple"))
+        {
+            gm.Collect(other.gameObject, playerId);
         }
     }
 }
