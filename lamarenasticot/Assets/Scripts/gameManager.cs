@@ -11,9 +11,11 @@ public class gameManager : MonoBehaviour
     public GameObject background;
     public GameObject playableArea;
     public GameObject wallModel;
+    public GameObject playerUIModel;
 
     private GameObject[] walls;
     private GameObject[] players;
+    private GameObject[] playerUIs;
     private GameObject[] apples;
 
     public int maxNbOfWalls = 8;
@@ -225,8 +227,8 @@ public class gameManager : MonoBehaviour
             }
             if (!collisionFound)
             {
-                GameObject newApple = (GameObject)Instantiate(playerModel, newPosition, Quaternion.identity);
-                return newApple;
+                GameObject newPlayer = (GameObject)Instantiate(playerModel, newPosition, Quaternion.identity);
+                return newPlayer;
             }
         }
         return null;
@@ -240,10 +242,9 @@ public class gameManager : MonoBehaviour
                 continue;
             players[i] = SpawnRandomPlayer();
             players[i].GetComponent<playerController>().playerId = i;
-
-            // HACK TMP TEST
-            Shoot(players[i]);
-            // HACK TMP TEST END
+            GameObject newPlayerUI = (GameObject)Instantiate(playerUIModel, new Vector3(0,0,0), Quaternion.identity);
+            newPlayerUI.GetComponent<playerUI>().init(i);
+            playerUIs[i] = newPlayerUI;
         }
     }
 
@@ -252,6 +253,7 @@ public class gameManager : MonoBehaviour
         walls = new GameObject[maxNbOfWalls];
         players = new GameObject[maxNbOfPlayers];
         apples = new GameObject[maxNbOfApples];
+        playerUIs = new GameObject[maxNbOfPlayers];
         playableAreaMin = playableArea.transform.TransformPoint(playableArea.GetComponent<SpriteRenderer>().sprite.bounds.min);
         playableAreaMax = playableArea.transform.TransformPoint(playableArea.GetComponent<SpriteRenderer>().sprite.bounds.max);
         SpawnWalls();
@@ -273,6 +275,7 @@ public class gameManager : MonoBehaviour
                 {
                     Destroy(i_collectedObject);
                     apples[i] = null;
+                    playerUIs[i_playerId].GetComponent<playerUI>().gainApple();
                     break;
                 }
             }
