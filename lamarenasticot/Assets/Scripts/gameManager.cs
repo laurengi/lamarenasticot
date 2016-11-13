@@ -27,6 +27,10 @@ public class gameManager : MonoBehaviour
 
     private Vector3 playableAreaMin;
     private Vector3 playableAreaMax;
+
+    private float lastAppleSpawnTime = 0.0f;
+    private float appleSpawnPeriod = 2.0f;
+
     
     float GetCollisionRadius(GameObject i_object)
     {
@@ -253,6 +257,8 @@ public class gameManager : MonoBehaviour
 
     void Start()
     {
+        lastAppleSpawnTime = Time.time;
+
         walls = new GameObject[maxNbOfWalls];
         players = new GameObject[maxNbOfPlayers];
         apples = new GameObject[maxNbOfApples];
@@ -266,6 +272,20 @@ public class gameManager : MonoBehaviour
 
     void FixedUpdate()
     {
+        float currentTime = Time.time;
+        if(currentTime > lastAppleSpawnTime + appleSpawnPeriod)
+        {
+            lastAppleSpawnTime = currentTime;
+            for (int i = 0; i < maxNbOfApples; i++)
+            {
+                if(apples[i] == null)
+                {
+                    apples[i] = SpawnRandomApple();
+                    break;
+                }
+            }
+
+        }
     }
 
     public void Collect(GameObject i_collectedObject, int i_playerId)
