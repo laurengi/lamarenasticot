@@ -173,7 +173,7 @@ public class gameManager : MonoBehaviour
         playableAreaMax = playableArea.transform.TransformPoint(playableArea.GetComponent<SpriteRenderer>().sprite.bounds.max);
         SpawnWalls();
         SpawnPlayers();
-        //SpawnObjects();
+        SpawnObjects();
     }
 
     void FixedUpdate()
