@@ -52,9 +52,9 @@ GameObject:
   m_Component:
   - 4: {fileID: 4000010230009992}
   - 212: {fileID: 212000010800384824}
-  - 114: {fileID: 114000013464536970}
   - 61: {fileID: 61000012941780408}
   - 50: {fileID: 50000012350974430}
+  - 114: {fileID: 114000011809560432}
   m_Layer: 0
   m_Name: player
   m_TagString: Untagged
@@ -194,7 +194,7 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Size: {x: 1.5, y: 0.5}
---- !u!114 &114000013464536970
+--- !u!114 &114000011809560432
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -207,7 +207,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerId: -1
   playerObject: {fileID: 1000011970959974}
-  playerSpeed: 16
+  setting_moveSpeed: 1
+  setting_moveAnimationSpeed: 10
+  setting_moveNeckExtend: 0.01
 --- !u!212 &212000010783862882
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -335,7 +337,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 2135915079
-  m_SortingOrder: 2
+  m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 8516d3c3cc038b246803a32b21c4082f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -368,7 +370,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 2135915079
-  m_SortingOrder: 3
+  m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: eb19ce73abcd7bb4ea9747562b530d97, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

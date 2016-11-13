@@ -60,6 +60,9 @@ public class playerController : MonoBehaviour
         playerNeckLow = playerObject.transform.FindChild("NeckLow").gameObject;
         playerBottom = playerObject.transform.FindChild("Bottom").gameObject;
 
+        // playerNeckHigh.SetActive(false);
+
+
         BoxCollider2D playerCollider = playerObject.GetComponent<BoxCollider2D>();
         Vector3 playerColliderSize = playerCollider.bounds.size;
         playerInitialLength = playerColliderSize.x;
@@ -93,8 +96,9 @@ public class playerController : MonoBehaviour
             float headCenter = 0.5f * (playerLength - playerSpriteLength);
             float bodyCenter = -0.5f * (playerLength - playerSpriteLength);
             float partDelta = (bodyCenter - headCenter) / 6.0f;
-            float neckHighCenter = partDelta;
-            float neckLowCenter = -0.8f * partDelta;
+            float neckHighCenter = -partDelta;
+//            float neckLowCenter = 0.8f * partDelta;
+            float neckLowCenter = partDelta;
 
             playerHead.transform.localPosition = new Vector3(headCenter, 0.0f, 0.0f);
             playerNeckHigh.transform.localPosition = new Vector3(neckHighCenter, 0.0f, 0.0f);
