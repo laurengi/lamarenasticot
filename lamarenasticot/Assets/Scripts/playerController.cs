@@ -4,6 +4,7 @@ using System.Collections;
 public class playerController : MonoBehaviour
 {
     public int playerId = -1;
+    public int playerAmmo = 0;
 
     private GameObject playerObject;
     // public float playerSpeed;
