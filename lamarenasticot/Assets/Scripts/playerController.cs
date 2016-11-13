@@ -143,7 +143,6 @@ public class playerController : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         // TODO : store gm in private member and fill it in Start()
-        Debug.Log("OnTriggerEnter");
         gameManager gm = FindObjectOfType<gameManager>();
         if (other.gameObject.CompareTag("Apple"))
         {
