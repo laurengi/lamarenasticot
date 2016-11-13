@@ -239,6 +239,7 @@ public class gameManager : MonoBehaviour
             if (players[i] != null)
                 continue;
             players[i] = SpawnRandomPlayer();
+            players[i].GetComponent<playerController>().playerId = i;
         }
     }
 
@@ -258,5 +259,20 @@ public class gameManager : MonoBehaviour
     {
     }
 
+    public void Collect(GameObject i_collectedObject, int i_playerId)
+    {
+        if (i_collectedObject.CompareTag("Apple"))
+        {
+            for(int i = 0; i < maxNbOfApples; i++)
+            {
+                if(i_collectedObject == apples[i])
+                {
+                    Destroy(i_collectedObject);
+                    apples[i] = null;
+                    break;
+                }
+            }
+        }
+    }
 
 }
