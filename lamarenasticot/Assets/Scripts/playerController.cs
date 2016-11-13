@@ -214,7 +214,7 @@ public class playerController : MonoBehaviour
 
         if (playerState == PlayerState.eFire)
         {
-            AnimateMove();
+            // AnimateMove();
             gm.Shoot(gameObject);
         }
 
@@ -255,15 +255,15 @@ public class playerController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
+        float moveHorizontal = Input.GetAxis("p0.Horizontal");
+        float moveVertical = Input.GetAxis("p0.Vertical");
         
         Vector3 motion = new Vector3(moveHorizontal, moveVertical, 0.0f);
         bool isMotion = (motion.x != 0 || motion.y != 0);
 
-        if (Input.GetButton("Jump") && (playerDashAsked.z == 0.0f))
+        if (Input.GetButton("p0.Jump") && (playerDashAsked.z == 0.0f))
             playerDashAsked = motion + new Vector3(0.0f, 0.0f, 1.0f);
-        else if (Input.GetButton("Fire1") && (playerFireAsked.z == 0.0f))
+        else if (Input.GetButton("p0.Fire") && (playerFireAsked.z == 0.0f))
             playerFireAsked = motion + new Vector3(0.0f, 0.0f, 1.0f);
         else if (isMotion && playerMoveAsked.z == 0.0f)
             playerMoveAsked = motion + new Vector3(0.0f, 0.0f, 1.0f);
