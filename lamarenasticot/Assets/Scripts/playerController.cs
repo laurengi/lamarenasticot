@@ -8,8 +8,8 @@ public class playerController : MonoBehaviour
     public int nbOfCollectedHats = 0;
 
     private GameObject playerObject;
+    private GameObject playerSounds;
     // public float playerSpeed;
-
 
     gameManager gm;
 
@@ -18,6 +18,9 @@ public class playerController : MonoBehaviour
     private GameObject playerNeckHigh;
     private GameObject playerNeckLow;
     private GameObject playerBottom;
+
+    private AudioSource playerFireSound;
+    private AudioSource playerJumpSound;
 
     private float playerInitialLength;
     private float playerSpriteLength;
@@ -101,6 +104,21 @@ public class playerController : MonoBehaviour
         float playerPartScaleRatio = playerColliderSize.x / playerPartSize.x;
         playerObject.transform.localScale = new Vector3(playerPartScaleRatio, playerPartScaleRatio, 1.0f);
         playerSpriteLength = playerHeadSprite.bounds.size.x;
+
+
+        ///////////////////////////////////////////////////////////////////////
+        playerSounds = playerObject.transform.FindChild("Sounds").gameObject;
+
+        GameObject playerFireSoundGO = playerSounds.transform.FindChild("fireSound").gameObject;
+        GameObject playerJumpSoundGO = playerSounds.transform.FindChild("jumpSound").gameObject;
+
+        playerFireSound = playerFireSoundGO.GetComponent<AudioSource>();
+        playerJumpSound = playerJumpSoundGO.GetComponent<AudioSource>();
+
+        // AudioSource audioSource = fireSound.GetComponent<AudioSource>();
+        // audioSource.PlayOneShot(audioSource.clip);
+
+
     }
 
     void AnimateMove()
@@ -221,12 +239,18 @@ public class playerController : MonoBehaviour
                 playerState = PlayerState.eFire;
                 playerFireStartTime = Time.time;
                 playerFireAsked.z = 2.0f;
+
+                if (gm.Shoot(gameObject))
+                    playerFireSound.Play(0);
+
             }
             else if (playerDashAsked.z == 1.0f)
             {
                 playerState = PlayerState.eDash;
                 playerDashStartTime = Time.time;
                 playerDashAsked.z = 2.0f;
+
+                playerJumpSound.Play(0);
             }
             else if (playerMoveAsked.z == 1.0f)
             {
@@ -239,7 +263,6 @@ public class playerController : MonoBehaviour
         if (playerState == PlayerState.eFire)
         {
             // AnimateMove();
-            gm.Shoot(gameObject);
 
             playerState = PlayerState.eIdle;
             playerFireStartTime = Time.time;

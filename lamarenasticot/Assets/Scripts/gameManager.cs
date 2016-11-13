@@ -12,7 +12,8 @@ public class gameManager : MonoBehaviour
     public GameObject playableArea;
     public GameObject wallModel;
     public GameObject playerUIModel;
-    public GameObject fireSound;
+    // public GameObject fireSound;
+    // public GameObject playerSounds;
 
     private GameObject[] walls;
     private GameObject[] players;
@@ -364,6 +365,11 @@ public class gameManager : MonoBehaviour
             if (players[i] == null)
                 continue;   // SpawnRandomPlayer might fail...
             players[i].GetComponent<playerController>().playerId = i;
+
+            // G Hack
+            // players[i].transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+            //players[i].GetComponent<playerController>().Start();
+
             GameObject newPlayerUI = (GameObject)Instantiate(playerUIModel, new Vector3(0,0,0), Quaternion.identity);
             newPlayerUI.GetComponent<playerUI>().init(i);
             playerUIs[i] = newPlayerUI;
@@ -463,26 +469,29 @@ public class gameManager : MonoBehaviour
         playerController playerCtrler = players[i_playerId].GetComponent<playerController>();
         if (playerCtrler.nbOfCollectedHats <= 0)
             return;
-        playerCtrler.nbOfCollectedHats--;
+
+        --playerCtrler.nbOfCollectedHats;
         playerUIs[i_playerId].GetComponent<playerUI>().loseHat();
     }
 
-    public void Shoot(GameObject i_shooter)
+    public bool Shoot(GameObject i_shooter)
     {
         playerController playerCtrler = i_shooter.GetComponent<playerController>();
         if (playerCtrler.nbOfCollectedApples <= 0)
-            return;
-        playerCtrler.nbOfCollectedApples--;
+            return false;
+
+        --playerCtrler.nbOfCollectedApples;
         Vector3 shooterDirectionNormalized = i_shooter.transform.right;
         shooterDirectionNormalized.Normalize();
+
         Vector3 shootingPosition = i_shooter.transform.position + shooterDirectionNormalized * playerSpawnCollisionRadius * 2.0f;
         GameObject missile = (GameObject)Instantiate(missileModel, shootingPosition, i_shooter.transform.rotation);
         missile.GetComponent<Rigidbody2D>().velocity = shooterDirectionNormalized * missileSpeed;
         int shooterId = i_shooter.GetComponent<playerController>().playerId;
         missile.GetComponent<missileController>().shooterId = shooterId;
         playerUIs[shooterId].GetComponent<playerUI>().loseApple();
-        AudioSource audioSource = fireSound.GetComponent<AudioSource>();
-        audioSource.PlayOneShot(audioSource.clip);
+
+        return true;
     }
 
 
