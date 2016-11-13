@@ -75,7 +75,24 @@ public class playerController : MonoBehaviour
         Vector3 playerColliderSize = playerCollider.bounds.size;
         playerInitialLength = playerColliderSize.x;
 
+        Color spriteColor = Color.white;
+        if (playerId == 1)
+            spriteColor = Color.red;
+        else if (playerId == 2)
+            spriteColor = Color.green;
+        else if (playerId == 3)
+            spriteColor = Color.blue;
+
         SpriteRenderer playerHeadSprite = playerHead.GetComponent<SpriteRenderer>();
+        SpriteRenderer playerNeckHighSprite = playerNeckHigh.GetComponent<SpriteRenderer>();
+        SpriteRenderer playerNeckLowSprite = playerNeckLow.GetComponent<SpriteRenderer>();
+        SpriteRenderer playerBodySprite = playerBottom.GetComponent<SpriteRenderer>();
+
+        playerHeadSprite.color = spriteColor;
+        playerNeckHighSprite.color = spriteColor;
+        playerNeckLowSprite.color = spriteColor;
+        playerBodySprite.color = spriteColor;
+
         Vector3 playerPartSize = playerHeadSprite.bounds.size;
         playerSpriteLength = playerPartSize.x;
 
