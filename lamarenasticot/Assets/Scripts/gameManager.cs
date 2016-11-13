@@ -24,6 +24,8 @@ public class gameManager : MonoBehaviour
 
     public float playerSpawnCollisionRadius = 0.75f;
 
+    public float missileSpeed = 0.2f;
+
     private Vector3 playableAreaMin;
     private Vector3 playableAreaMax;
     
@@ -97,7 +99,6 @@ public class gameManager : MonoBehaviour
         int maxNbOfAttempts = 10;
         for (int nbOfAttempts = 0; nbOfAttempts < maxNbOfAttempts; nbOfAttempts++)
         {
-            Debug.Log(nbOfAttempts);
             Vector2 newPosition = new Vector2(Random.Range(spawnAreaMin.x, spawnAreaMax.x), Random.Range(spawnAreaMin.y, spawnAreaMax.y));
             bool collisionFound = false;
             // collision with walls
@@ -179,7 +180,6 @@ public class gameManager : MonoBehaviour
         int maxNbOfAttempts = 100;
         for (int nbOfAttempts = 0; nbOfAttempts < maxNbOfAttempts; nbOfAttempts++)
         {
-            Debug.Log(nbOfAttempts);
             Vector2 newPosition = new Vector2(Random.Range(spawnAreaMin.x, spawnAreaMax.x), Random.Range(spawnAreaMin.y, spawnAreaMax.y));
             bool collisionFound = false;
             // collision with walls
@@ -281,5 +281,20 @@ public class gameManager : MonoBehaviour
             }
         }
     }
+
+    public void DamagePlayer(int i_playerId)
+    {
+        // TODO stunned ? invulnerable ? lose hat ?
+    }
+
+    public void Shoot(GameObject i_shooter)
+    {
+        Vector3 shooterDirectionNormalized = i_shooter.transform.right;
+        shooterDirectionNormalized.Normalize();
+        Vector3 shootingPosition = i_shooter.transform.position + shooterDirectionNormalized * playerSpawnCollisionRadius * 2.0f;
+        GameObject missile = (GameObject)Instantiate(missileModel, shootingPosition, i_shooter.transform.rotation);
+        missile.GetComponent<Rigidbody2D>().velocity = shooterDirectionNormalized * missileSpeed;
+    }
+
 
 }
