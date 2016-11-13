@@ -27,11 +27,11 @@ public class playerController : MonoBehaviour
     public float setting_moveAnimationSpeed = 10.0f;
     public float setting_moveNeckExtend = 0.2f;
 
-    private float setting_dashSpeed = 10.0f;
-    private float setting_dashSlideTime = 0.5f;
-    private float setting_dashSlideLength = 2.0f;
-    private float setting_dashAnimationSpeed = 1.0f;
-    private float setting_dashNeckExtend = 0.05f;
+    public float setting_dashSpeed = 1.0f;
+    public float setting_dashSlideTime = 0.75f;
+    public float setting_dashSlideLength = 15.0f;
+    public float setting_dashAnimationSpeed = 6.0f;
+    public float setting_dashNeckExtend = 0.2f;
 
     private float setting_fireSpeed = 10.0f;
     private float setting_fireAnimationSpeed = 1.0f;
@@ -47,13 +47,13 @@ public class playerController : MonoBehaviour
     private float playerDashStartTime;
     private float playerFireStartTime;
 
-    private float playerDashCooldown;
-    private float playerFireCooldown;
+    public float setting_playerDashCooldown = 0.5f;
+    public float setting_playerFireCooldown = 0.5f;
 
-    enum PlayerState
-    {
-        eIdle, eMove, eFire, eDash,
-    }
+    enum PlayerState { eIdle, eMove, eFire, eDash, };
+
+    enum DashState { eDashUp, eDashSlide, eDashDown, };
+
 
     // Use this for initialization
     void Start()
@@ -91,7 +91,7 @@ public class playerController : MonoBehaviour
 
         float t = (Time.time - playerMoveStartTime) * setting_moveAnimationSpeed;
         float playerLength = playerInitialLength * (1.0f + setting_moveNeckExtend * Mathf.Pow(Mathf.Sin(t), jerkPower));
-        float playerLengthSpeed = setting_moveAnimationSpeed * jerkPower * playerInitialLength * setting_moveNeckExtend * Mathf.Pow(Mathf.Sin(t), jerkPower - 1.0f) * Mathf.Cos(t) * setting_moveSpeed;
+        float playerLengthSpeed = setting_moveAnimationSpeed * jerkPower * playerInitialLength * setting_moveNeckExtend * Mathf.Pow(Mathf.Sin(t), jerkPower - 1.0f) * Mathf.Cos(t);
 
         if (t >= Mathf.PI)
         {
@@ -119,24 +119,44 @@ public class playerController : MonoBehaviour
 
         float moveAngle = Mathf.Atan2(playerMoveAsked.y, playerMoveAsked.x);
         playerObject.transform.position += new Vector3(Mathf.Cos(moveAngle), Mathf.Sin(moveAngle)) *
-                                               Mathf.Abs(playerLengthSpeed) * Time.deltaTime;
+                                               Mathf.Abs(playerLengthSpeed) * Time.deltaTime * setting_moveSpeed;
         Quaternion rotation = new Quaternion();
         rotation.eulerAngles = new Vector3(0.0f, 0.0f, moveAngle * Mathf.Rad2Deg);
         playerObject.transform.rotation = rotation;
     }
 
 
-
-    /*void AnimateDash()
+    void AnimateDash()
     {
         float jerkPower = 16.0f;
-        float dashSlideTime = 0.5f;
 
-        float t = (Time.time - playerMoveStartTime) * setting_dashAnimationSpeed;
-        float playerLength = playerInitialLength * (1.0f + setting_moveNeckExtend * Mathf.Pow(Mathf.Sin(t), jerkPower));
-        float playerLengthSpeed = jerkPower * playerInitialLength * setting_moveNeckExtend * Mathf.Pow(Mathf.Sin(t), jerkPower - 1.0f) * Mathf.Cos(t) * setting_moveSpeed;
+        float t = (Time.time - playerDashStartTime) * setting_dashAnimationSpeed;
+        DashState dashState = DashState.eDashUp;
 
-        if (t >= Mathf.PI)
+        float playerLength = playerInitialLength * (1.0f + setting_dashNeckExtend * Mathf.Pow(Mathf.Sin(t), jerkPower));
+        float playerLengthSpeed = setting_dashAnimationSpeed * jerkPower * playerInitialLength * setting_moveNeckExtend * Mathf.Pow(Mathf.Sin(t), jerkPower - 1.0f) * Mathf.Cos(t) * setting_dashSpeed;
+
+        if (t < Mathf.PI / 2.0f)
+        {
+            dashState = DashState.eDashUp;
+            float revT = t;
+            playerLength = playerInitialLength * (1.0f + setting_dashNeckExtend * Mathf.Pow(Mathf.Sin(revT), jerkPower));
+            playerLengthSpeed = setting_dashAnimationSpeed * jerkPower * playerInitialLength * setting_moveNeckExtend * Mathf.Pow(Mathf.Sin(t), jerkPower - 1.0f) * Mathf.Cos(revT) * setting_dashSpeed;
+        }
+        else if (t < Mathf.PI / 2.0f + setting_dashSlideTime)
+        {
+            dashState = DashState.eDashSlide;
+            playerLength = playerInitialLength * (1.0f + setting_dashNeckExtend);
+            playerLengthSpeed = setting_dashSlideLength / setting_dashSlideTime;
+        }
+        else if (t < Mathf.PI)
+        {
+            dashState = DashState.eDashDown;
+            float revT = t - setting_dashSlideTime;
+            playerLength = playerInitialLength * (1.0f + setting_dashNeckExtend * Mathf.Pow(Mathf.Sin(revT), jerkPower));
+            playerLengthSpeed = setting_dashAnimationSpeed * jerkPower * playerInitialLength * setting_moveNeckExtend * Mathf.Pow(Mathf.Sin(t), jerkPower - 1.0f) * Mathf.Cos(revT) * setting_dashSpeed;
+        }
+        else
         {
             playerState = PlayerState.eIdle;
             playerMoveStartTime = Time.time;
@@ -148,8 +168,9 @@ public class playerController : MonoBehaviour
             float headCenter = 0.5f * (playerLength - playerSpriteLength);
             float bodyCenter = -0.5f * (playerLength - playerSpriteLength);
             float partDelta = (bodyCenter - headCenter) / 6.0f;
-            float neckHighCenter = partDelta;
-            float neckLowCenter = -0.8f * partDelta;
+            float neckHighCenter = -partDelta;
+            //            float neckLowCenter = 0.8f * partDelta;
+            float neckLowCenter = partDelta;
 
             playerHead.transform.localPosition = new Vector3(headCenter, 0.0f, 0.0f);
             playerNeckHigh.transform.localPosition = new Vector3(neckHighCenter, 0.0f, 0.0f);
@@ -165,7 +186,7 @@ public class playerController : MonoBehaviour
         Quaternion rotation = new Quaternion();
         rotation.eulerAngles = new Vector3(0.0f, 0.0f, moveAngle * Mathf.Rad2Deg);
         playerObject.transform.rotation = rotation;
-    }*/
+    }
 
 
 
@@ -200,7 +221,7 @@ public class playerController : MonoBehaviour
 
         if (playerState == PlayerState.eDash)
         {
-            AnimateMove();
+            AnimateDash();
         }
 
         if (playerState == PlayerState.eMove)
@@ -211,14 +232,14 @@ public class playerController : MonoBehaviour
         // Cooldown solving
         if (playerState != PlayerState.eFire &&
             playerFireAsked.z != 0.0f &&
-            (Time.time - playerFireStartTime) >= playerFireCooldown)
+            (Time.time - playerFireStartTime) >= setting_playerFireCooldown)
         {
             playerFireAsked.z = 0.0f;
         }
 
         if (playerState != PlayerState.eDash &&
             playerDashAsked.z != 0.0f &&
-            (Time.time - playerDashStartTime) >= playerDashCooldown)
+            (Time.time - playerDashStartTime) >= setting_playerDashCooldown)
         {
             playerDashAsked.z = 0.0f;
         }
