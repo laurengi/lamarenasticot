@@ -26,11 +26,11 @@ public class playerController : MonoBehaviour
     public float setting_moveAnimationSpeed = 10.0f;
     public float setting_moveNeckExtend = 0.2f;
 
-    private float setting_dashSpeed = 1.0f;
-    private float setting_dashSlideTime = 0.5f;
-    private float setting_dashSlideLength = 15.0f;
-    private float setting_dashAnimationSpeed = 6.0f;
-    private float setting_dashNeckExtend = 0.05f;
+    public float setting_dashSpeed = 1.0f;
+    public float setting_dashSlideTime = 0.75f;
+    public float setting_dashSlideLength = 15.0f;
+    public float setting_dashAnimationSpeed = 6.0f;
+    public float setting_dashNeckExtend = 0.2f;
 
     private float setting_fireSpeed = 10.0f;
     private float setting_fireAnimationSpeed = 1.0f;
@@ -46,8 +46,8 @@ public class playerController : MonoBehaviour
     private float playerDashStartTime;
     private float playerFireStartTime;
 
-    private float playerDashCooldown;
-    private float playerFireCooldown;
+    public float setting_playerDashCooldown = 0.5f;
+    public float setting_playerFireCooldown = 0.5f;
 
     enum PlayerState { eIdle, eMove, eFire, eDash, };
 
@@ -90,7 +90,7 @@ public class playerController : MonoBehaviour
 
         float t = (Time.time - playerMoveStartTime) * setting_moveAnimationSpeed;
         float playerLength = playerInitialLength * (1.0f + setting_moveNeckExtend * Mathf.Pow(Mathf.Sin(t), jerkPower));
-        float playerLengthSpeed = setting_moveAnimationSpeed * jerkPower * playerInitialLength * setting_moveNeckExtend * Mathf.Pow(Mathf.Sin(t), jerkPower - 1.0f) * Mathf.Cos(t) * setting_moveSpeed;
+        float playerLengthSpeed = setting_moveAnimationSpeed * jerkPower * playerInitialLength * setting_moveNeckExtend * Mathf.Pow(Mathf.Sin(t), jerkPower - 1.0f) * Mathf.Cos(t);
 
         if (t >= Mathf.PI)
         {
@@ -118,7 +118,7 @@ public class playerController : MonoBehaviour
 
         float moveAngle = Mathf.Atan2(playerMoveAsked.y, playerMoveAsked.x);
         playerObject.transform.position += new Vector3(Mathf.Cos(moveAngle), Mathf.Sin(moveAngle)) *
-                                               Mathf.Abs(playerLengthSpeed) * Time.deltaTime;
+                                               Mathf.Abs(playerLengthSpeed) * Time.deltaTime * setting_moveSpeed;
         Quaternion rotation = new Quaternion();
         rotation.eulerAngles = new Vector3(0.0f, 0.0f, moveAngle * Mathf.Rad2Deg);
         playerObject.transform.rotation = rotation;
@@ -131,7 +131,6 @@ public class playerController : MonoBehaviour
 
         float t = (Time.time - playerDashStartTime) * setting_dashAnimationSpeed;
         DashState dashState = DashState.eDashUp;
-
 
         float playerLength = playerInitialLength * (1.0f + setting_dashNeckExtend * Mathf.Pow(Mathf.Sin(t), jerkPower));
         float playerLengthSpeed = setting_dashAnimationSpeed * jerkPower * playerInitialLength * setting_moveNeckExtend * Mathf.Pow(Mathf.Sin(t), jerkPower - 1.0f) * Mathf.Cos(t) * setting_dashSpeed;
@@ -215,9 +214,8 @@ public class playerController : MonoBehaviour
 
         if (playerState == PlayerState.eFire)
         {
-            // AnimateMove();
-            // TODO: decomment
-            // gm.Shoot(gameObject);
+            AnimateMove();
+            gm.Shoot(gameObject);
         }
 
         if (playerState == PlayerState.eDash)
@@ -233,14 +231,14 @@ public class playerController : MonoBehaviour
         // Cooldown solving
         if (playerState != PlayerState.eFire &&
             playerFireAsked.z != 0.0f &&
-            (Time.time - playerFireStartTime) >= playerFireCooldown)
+            (Time.time - playerFireStartTime) >= setting_playerFireCooldown)
         {
             playerFireAsked.z = 0.0f;
         }
 
         if (playerState != PlayerState.eDash &&
             playerDashAsked.z != 0.0f &&
-            (Time.time - playerDashStartTime) >= playerDashCooldown)
+            (Time.time - playerDashStartTime) >= setting_playerDashCooldown)
         {
             playerDashAsked.z = 0.0f;
         }
@@ -276,8 +274,6 @@ public class playerController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        // TODO : store gm in private member and fill it in Start()
-        Debug.Log("OnTriggerEnter");
         if (other.gameObject.CompareTag("Apple"))
         {
             gm.Collect(other.gameObject, playerId);

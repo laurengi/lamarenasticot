@@ -51,7 +51,6 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 4000010230009992}
-  - 212: {fileID: 212000010800384824}
   - 61: {fileID: 61000012941780408}
   - 50: {fileID: 50000012350974430}
   - 114: {fileID: 114000011809560432}
@@ -206,10 +205,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerId: -1
-  playerObject: {fileID: 1000011970959974}
   setting_moveSpeed: 1
   setting_moveAnimationSpeed: 10
-  setting_moveNeckExtend: 0.01
+  setting_moveNeckExtend: 0.2
+  setting_dashSpeed: 1
+  setting_dashSlideTime: 0.75
+  setting_dashSlideLength: 15
+  setting_dashAnimationSpeed: 6
+  setting_dashNeckExtend: 0.2
+  setting_playerDashCooldown: 0.5
+  setting_playerFireCooldown: 0.5
 --- !u!212 &212000010783862882
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -273,39 +278,6 @@ SpriteRenderer:
   m_SortingLayerID: 2135915079
   m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 0a9fba11a27dd9d4cb3fd4e0b9b21c5f, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
-  m_FlipY: 0
---- !u!212 &212000010800384824
-SpriteRenderer:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000011970959974}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 0
-  m_ReflectionProbeUsage: 0
-  m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
-  m_SubsetIndices: 
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_SelectedWireframeHidden: 1
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

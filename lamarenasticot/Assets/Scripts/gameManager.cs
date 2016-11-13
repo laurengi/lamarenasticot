@@ -11,9 +11,11 @@ public class gameManager : MonoBehaviour
     public GameObject background;
     public GameObject playableArea;
     public GameObject wallModel;
+    public GameObject playerUIModel;
 
     private GameObject[] walls;
     private GameObject[] players;
+    private GameObject[] playerUIs;
     private GameObject[] apples;
 
     public int maxNbOfWalls = 8;
@@ -21,6 +23,8 @@ public class gameManager : MonoBehaviour
     public int maxNbOfApples = 10;
 
     public float playerSpawnCollisionRadius = 0.75f;
+
+    public float missileSpeed = 0.2f;
 
     private Vector3 playableAreaMin;
     private Vector3 playableAreaMax;
@@ -95,7 +99,6 @@ public class gameManager : MonoBehaviour
         int maxNbOfAttempts = 10;
         for (int nbOfAttempts = 0; nbOfAttempts < maxNbOfAttempts; nbOfAttempts++)
         {
-            Debug.Log(nbOfAttempts);
             Vector2 newPosition = new Vector2(Random.Range(spawnAreaMin.x, spawnAreaMax.x), Random.Range(spawnAreaMin.y, spawnAreaMax.y));
             bool collisionFound = false;
             // collision with walls
@@ -177,7 +180,6 @@ public class gameManager : MonoBehaviour
         int maxNbOfAttempts = 100;
         for (int nbOfAttempts = 0; nbOfAttempts < maxNbOfAttempts; nbOfAttempts++)
         {
-            Debug.Log(nbOfAttempts);
             Vector2 newPosition = new Vector2(Random.Range(spawnAreaMin.x, spawnAreaMax.x), Random.Range(spawnAreaMin.y, spawnAreaMax.y));
             bool collisionFound = false;
             // collision with walls
@@ -225,8 +227,8 @@ public class gameManager : MonoBehaviour
             }
             if (!collisionFound)
             {
-                GameObject newApple = (GameObject)Instantiate(playerModel, newPosition, Quaternion.identity);
-                return newApple;
+                GameObject newPlayer = (GameObject)Instantiate(playerModel, newPosition, Quaternion.identity);
+                return newPlayer;
             }
         }
         return null;
@@ -240,6 +242,9 @@ public class gameManager : MonoBehaviour
                 continue;
             players[i] = SpawnRandomPlayer();
             players[i].GetComponent<playerController>().playerId = i;
+            GameObject newPlayerUI = (GameObject)Instantiate(playerUIModel, new Vector3(0,0,0), Quaternion.identity);
+            newPlayerUI.GetComponent<playerUI>().init(i);
+            playerUIs[i] = newPlayerUI;
         }
     }
 
@@ -248,6 +253,7 @@ public class gameManager : MonoBehaviour
         walls = new GameObject[maxNbOfWalls];
         players = new GameObject[maxNbOfPlayers];
         apples = new GameObject[maxNbOfApples];
+        playerUIs = new GameObject[maxNbOfPlayers];
         playableAreaMin = playableArea.transform.TransformPoint(playableArea.GetComponent<SpriteRenderer>().sprite.bounds.min);
         playableAreaMax = playableArea.transform.TransformPoint(playableArea.GetComponent<SpriteRenderer>().sprite.bounds.max);
         SpawnWalls();
@@ -269,10 +275,27 @@ public class gameManager : MonoBehaviour
                 {
                     Destroy(i_collectedObject);
                     apples[i] = null;
+                    playerUIs[i_playerId].GetComponent<playerUI>().gainApple();
                     break;
                 }
             }
         }
     }
+
+    public void DamagePlayer(int i_playerId)
+    {
+        // TODO stunned ? invulnerable ? lose hat ?
+    }
+
+    public void Shoot(GameObject i_shooter)
+    {
+        Vector3 shooterDirectionNormalized = i_shooter.transform.right;
+        shooterDirectionNormalized.Normalize();
+        Vector3 shootingPosition = i_shooter.transform.position + shooterDirectionNormalized * playerSpawnCollisionRadius * 2.0f;
+        GameObject missile = (GameObject)Instantiate(missileModel, shootingPosition, i_shooter.transform.rotation);
+        missile.GetComponent<Rigidbody2D>().velocity = shooterDirectionNormalized * missileSpeed;
+        missile.GetComponent<missileController>().shooterId = i_shooter.GetComponent<playerController>().playerId;
+    }
+
 
 }
