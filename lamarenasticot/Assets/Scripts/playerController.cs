@@ -4,7 +4,8 @@ using System.Collections;
 public class playerController : MonoBehaviour
 {
     public int playerId = -1;
-    public int playerAmmo = 0;
+    public int nbOfCollectedApples = 0;
+    public int nbOfCollectedHats = 0;
 
     private GameObject playerObject;
     // public float playerSpeed;
@@ -275,7 +276,7 @@ public class playerController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Apple"))
+        if (other.gameObject.CompareTag("Apple") || other.gameObject.CompareTag("Hat"))
         {
             gm.Collect(other.gameObject, playerId);
         }

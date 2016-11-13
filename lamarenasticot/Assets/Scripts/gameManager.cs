@@ -6,6 +6,7 @@ public class gameManager : MonoBehaviour
 {
 
     public GameObject appleModel;
+    public GameObject hatModel;
     public GameObject playerModel;
     public GameObject missileModel;
     public GameObject playableArea;
@@ -16,10 +17,12 @@ public class gameManager : MonoBehaviour
     private GameObject[] players;
     private GameObject[] playerUIs;
     private GameObject[] apples;
+    private GameObject[] hats;
 
     public int maxNbOfWalls = 6;
     public int maxNbOfPlayers = 4;
     public int maxNbOfApples = 10;
+    public int maxNbOfHats = 2;
 
     public float playerSpawnCollisionRadius = 0.75f;
 
@@ -31,6 +34,8 @@ public class gameManager : MonoBehaviour
     private float lastAppleSpawnTime = 0.0f;
     private float appleSpawnPeriod = 2.0f;
 
+    private float lastHatSpawnTime = 0.0f;
+    private float hatSpawnPeriod = 2.0f;
     
     float GetCollisionRadius(GameObject i_object)
     {
@@ -92,11 +97,13 @@ public class gameManager : MonoBehaviour
         float wallCollisionRadius = GetCollisionRadius(wallModel);
         float playerCollisionRadius = playerSpawnCollisionRadius;
         float appleCollisionRadius = GetCollisionRadius(appleModel);
+        float hatCollisionRadius = GetCollisionRadius(hatModel);
         float playerExtraCollisionDistance = playerCollisionRadius * 2;
 
         float spawnWallCollisionDistance = wallCollisionRadius + appleCollisionRadius;
         float spawnPlayerCollisionDistance = playerCollisionRadius + appleCollisionRadius + playerExtraCollisionDistance;
         float spawnAppleCollisionDistance = appleCollisionRadius + appleCollisionRadius;
+        float spawnHatCollisionDistance = hatCollisionRadius + appleCollisionRadius;
         
         Vector3 spawnAreaMin = playableAreaMin + new Vector3(appleCollisionRadius, appleCollisionRadius, 0.0f);
         Vector3 spawnAreaMax = playableAreaMax - new Vector3(appleCollisionRadius, appleCollisionRadius, 0.0f);
@@ -149,6 +156,20 @@ public class gameManager : MonoBehaviour
                     break;
                 }
             }
+            // collision with hats
+            for (int j = 0; j < maxNbOfHats; j++)
+            {
+                if (hats[j] == null)
+                    continue;
+                Vector3 hatJPosition = hats[j].transform.position;
+                Vector3 vector = hatJPosition - new Vector3(newPosition.x, newPosition.y, 0.0f);
+                if (vector.magnitude < spawnHatCollisionDistance)
+                {
+                    collisionFound = true;
+                    break;
+                }
+            }
+            // create apple!
             if (!collisionFound)
             {
                 GameObject newApple = (GameObject)Instantiate(appleModel, newPosition, Quaternion.identity);
@@ -157,7 +178,94 @@ public class gameManager : MonoBehaviour
         }
         return null;
     }
-    
+
+    GameObject SpawnRandomHat()
+    {
+        float wallCollisionRadius = GetCollisionRadius(wallModel);
+        float playerCollisionRadius = playerSpawnCollisionRadius;
+        float appleCollisionRadius = GetCollisionRadius(appleModel);
+        float hatCollisionRadius = GetCollisionRadius(hatModel);
+        float playerExtraCollisionDistance = playerCollisionRadius * 2;
+
+        float spawnWallCollisionDistance = wallCollisionRadius + hatCollisionRadius;
+        float spawnPlayerCollisionDistance = playerCollisionRadius + hatCollisionRadius + playerExtraCollisionDistance;
+        float spawnAppleCollisionDistance = appleCollisionRadius + hatCollisionRadius;
+        float spawnHatCollisionDistance = hatCollisionRadius + hatCollisionRadius;
+
+        Vector3 spawnAreaMin = playableAreaMin + new Vector3(hatCollisionRadius, hatCollisionRadius, 0.0f);
+        Vector3 spawnAreaMax = playableAreaMax - new Vector3(hatCollisionRadius, hatCollisionRadius, 0.0f);
+
+        int maxNbOfAttempts = 100;
+        for (int nbOfAttempts = 0; nbOfAttempts < maxNbOfAttempts; nbOfAttempts++)
+        {
+            Vector2 newPosition = new Vector2(Random.Range(spawnAreaMin.x, spawnAreaMax.x), Random.Range(spawnAreaMin.y, spawnAreaMax.y));
+            bool collisionFound = false;
+            // collision with walls
+            for (int j = 0; j < maxNbOfWalls; j++)
+            {
+                if (walls[j] == null)
+                    continue;
+                Vector3 wallJPosition = walls[j].transform.position;
+                Vector3 vector = wallJPosition - new Vector3(newPosition.x, newPosition.y, 0.0f);
+                if (vector.magnitude < spawnWallCollisionDistance)
+                {
+                    collisionFound = true;
+                    break;
+                }
+            }
+            if (collisionFound)
+                continue;
+            // collision with players
+            for (int j = 0; j < maxNbOfPlayers; j++)
+            {
+                if (players[j] == null)
+                    continue;
+                Vector3 playerJPosition = players[j].transform.position;
+                Vector3 vector = playerJPosition - new Vector3(newPosition.x, newPosition.y, 0.0f);
+                if (vector.magnitude < spawnPlayerCollisionDistance)
+                {
+                    collisionFound = true;
+                    break;
+                }
+            }
+            if (collisionFound)
+                continue;
+            // collision with apples
+            for (int j = 0; j < maxNbOfApples; j++)
+            {
+                if (apples[j] == null)
+                    continue;
+                Vector3 appleJPosition = apples[j].transform.position;
+                Vector3 vector = appleJPosition - new Vector3(newPosition.x, newPosition.y, 0.0f);
+                if (vector.magnitude < spawnAppleCollisionDistance)
+                {
+                    collisionFound = true;
+                    break;
+                }
+            }
+            // collision with hats
+            for (int j = 0; j < maxNbOfHats; j++)
+            {
+                if (hats[j] == null)
+                    continue;
+                Vector3 hatJPosition = hats[j].transform.position;
+                Vector3 vector = hatJPosition - new Vector3(newPosition.x, newPosition.y, 0.0f);
+                if (vector.magnitude < spawnHatCollisionDistance)
+                {
+                    collisionFound = true;
+                    break;
+                }
+            }
+            // create hat!
+            if (!collisionFound)
+            {
+                GameObject newHat = (GameObject)Instantiate(hatModel, newPosition, Quaternion.identity);
+                return newHat;
+            }
+        }
+        return null;
+    }
+
     void SpawnObjects()
     {
         for (int i = 0; i < maxNbOfApples; i++)
@@ -165,6 +273,12 @@ public class gameManager : MonoBehaviour
             if (apples[i] != null)
                 continue;
             apples[i] = SpawnRandomApple();
+        }
+        for (int i = 0; i < maxNbOfHats; i++)
+        {
+            if (hats[i] != null)
+                continue;
+            hats[i] = SpawnRandomHat();
         }
     }
 
@@ -262,6 +376,7 @@ public class gameManager : MonoBehaviour
         walls = new GameObject[maxNbOfWalls];
         players = new GameObject[maxNbOfPlayers];
         apples = new GameObject[maxNbOfApples];
+        hats = new GameObject[maxNbOfHats];
         playerUIs = new GameObject[maxNbOfPlayers];
         playableAreaMin = playableArea.transform.TransformPoint(playableArea.GetComponent<SpriteRenderer>().sprite.bounds.min);
         playableAreaMax = playableArea.transform.TransformPoint(playableArea.GetComponent<SpriteRenderer>().sprite.bounds.max);
@@ -273,6 +388,7 @@ public class gameManager : MonoBehaviour
     void FixedUpdate()
     {
         float currentTime = Time.time;
+        // spawn one new apple if necessary
         if(currentTime > lastAppleSpawnTime + appleSpawnPeriod)
         {
             lastAppleSpawnTime = currentTime;
@@ -284,7 +400,19 @@ public class gameManager : MonoBehaviour
                     break;
                 }
             }
-
+        }
+        // spawn one new hat if necessary
+        if (currentTime > lastHatSpawnTime + hatSpawnPeriod)
+        {
+            lastHatSpawnTime = currentTime;
+            for (int i = 0; i < maxNbOfHats; i++)
+            {
+                if (hats[i] == null)
+                {
+                    hats[i] = SpawnRandomHat();
+                    break;
+                }
+            }
         }
     }
 
@@ -297,12 +425,30 @@ public class gameManager : MonoBehaviour
                 if(i_collectedObject == apples[i])
                 {
                     playerController playerCtrler = players[i_playerId].GetComponent<playerController>();
-                    if (playerCtrler.playerAmmo < 3)
+                    if (playerCtrler.nbOfCollectedApples < 3)
                     {
-                        playerCtrler.playerAmmo++;
+                        playerCtrler.nbOfCollectedApples++;
                         Destroy(i_collectedObject);
                         apples[i] = null;
                         playerUIs[i_playerId].GetComponent<playerUI>().gainApple();
+                        break;
+                    }
+                }
+            }
+        }
+        if (i_collectedObject.CompareTag("Hat"))
+        {
+            for(int i = 0; i < maxNbOfHats; i++)
+            {
+                if(i_collectedObject == hats[i])
+                {
+                    playerController playerCtrler = players[i_playerId].GetComponent<playerController>();
+                    if (playerCtrler.nbOfCollectedHats < 3)
+                    {
+                        playerCtrler.nbOfCollectedHats++;
+                        Destroy(i_collectedObject);
+                        hats[i] = null;
+                        playerUIs[i_playerId].GetComponent<playerUI>().gainHat();
                         break;
                     }
                 }
@@ -318,9 +464,9 @@ public class gameManager : MonoBehaviour
     public void Shoot(GameObject i_shooter)
     {
         playerController playerCtrler = i_shooter.GetComponent<playerController>();
-        if (playerCtrler.playerAmmo <= 0)
+        if (playerCtrler.nbOfCollectedApples <= 0)
             return;
-        playerCtrler.playerAmmo--;
+        playerCtrler.nbOfCollectedApples--;
         Vector3 shooterDirectionNormalized = i_shooter.transform.right;
         shooterDirectionNormalized.Normalize();
         Vector3 shootingPosition = i_shooter.transform.position + shooterDirectionNormalized * playerSpawnCollisionRadius * 2.0f;
