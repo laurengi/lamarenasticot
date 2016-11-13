@@ -56,12 +56,11 @@ MonoBehaviour:
     type: 2}
   missileModel: {fileID: 1000012803560102, guid: fe52136b5ea1a1d408dff788f7c29778,
     type: 2}
-  background: {fileID: 0}
   playableArea: {fileID: 0}
   wallModel: {fileID: 1000010218678644, guid: ea1d826b95ee2ed44a84d25e40f40715, type: 2}
   playerUIModel: {fileID: 1085562508191556, guid: 486356806ca344119a9269e2522940bc,
     type: 2}
-  maxNbOfWalls: 8
+  maxNbOfWalls: 6
   maxNbOfPlayers: 4
   maxNbOfApples: 10
   playerSpawnCollisionRadius: 0.75

@@ -8,7 +8,6 @@ public class gameManager : MonoBehaviour
     public GameObject appleModel;
     public GameObject playerModel;
     public GameObject missileModel;
-    public GameObject background;
     public GameObject playableArea;
     public GameObject wallModel;
     public GameObject playerUIModel;
@@ -18,7 +17,7 @@ public class gameManager : MonoBehaviour
     private GameObject[] playerUIs;
     private GameObject[] apples;
 
-    public int maxNbOfWalls = 8;
+    public int maxNbOfWalls = 6;
     public int maxNbOfPlayers = 4;
     public int maxNbOfApples = 10;
 
@@ -28,11 +27,15 @@ public class gameManager : MonoBehaviour
 
     private Vector3 playableAreaMin;
     private Vector3 playableAreaMax;
+
+    private float lastAppleSpawnTime = 0.0f;
+    private float appleSpawnPeriod = 2.0f;
+
     
     float GetCollisionRadius(GameObject i_object)
     {
         Vector3 objectExtents = i_object.GetComponent<SpriteRenderer>().sprite.bounds.extents;
-        objectExtents.Scale(wallModel.transform.localScale); // for zoom
+        objectExtents.Scale(i_object.transform.localScale); // for zoom
         float objectCollisionRadius = Mathf.Sqrt(objectExtents.x * objectExtents.x + objectExtents.y * objectExtents.y);
         return objectCollisionRadius;
     }
@@ -41,14 +44,16 @@ public class gameManager : MonoBehaviour
     {
         float wallCollisionRadius = GetCollisionRadius(wallModel);
         float playerCollisionRadius = playerSpawnCollisionRadius;
-        float spawnCollisionRadius = wallCollisionRadius + playerCollisionRadius;
-        
-        Vector3 spawnAreaMin = playableAreaMin + new Vector3(spawnCollisionRadius, spawnCollisionRadius, 0.0f);
-        Vector3 spawnAreaMax = playableAreaMax - new Vector3(spawnCollisionRadius, spawnCollisionRadius, 0.0f);
+
+        float spawnCollisionDistance = 2.0f * (wallCollisionRadius + playerCollisionRadius);
+
+        float spawnBorderMargin = wallCollisionRadius + 2.0f * playerCollisionRadius;
+        Vector3 spawnAreaMin = playableAreaMin + new Vector3(spawnBorderMargin, spawnBorderMargin, 0.0f);
+        Vector3 spawnAreaMax = playableAreaMax - new Vector3(spawnBorderMargin, spawnBorderMargin, 0.0f);
         
         for (int i = 0; i < maxNbOfWalls; i++)
         {
-            int maxNbOfAttempts = 10;
+            int maxNbOfAttempts = 100;
             bool wallSpawned = false;
             for (int nbOfAttempts = 0; nbOfAttempts < maxNbOfAttempts; nbOfAttempts++)
             {
@@ -60,7 +65,7 @@ public class gameManager : MonoBehaviour
                         continue;
                     Vector3 wallJPosition = walls[j].transform.position;
                     Vector3 wallsVector = wallJPosition - new Vector3(newPosition.x, newPosition.y, 0.0f);
-                    if (wallsVector.magnitude < 2.0f * spawnCollisionRadius)
+                    if (wallsVector.magnitude < spawnCollisionDistance)
                     {
                         collisionFound = true;
                         break;
@@ -87,16 +92,16 @@ public class gameManager : MonoBehaviour
         float wallCollisionRadius = GetCollisionRadius(wallModel);
         float playerCollisionRadius = playerSpawnCollisionRadius;
         float appleCollisionRadius = GetCollisionRadius(appleModel);
-        float playerExtraCollisionDistance = playerCollisionRadius * 3;
+        float playerExtraCollisionDistance = playerCollisionRadius * 2;
 
-        float spawnWallCollisionRadius = wallCollisionRadius + appleCollisionRadius;
-        float spawnPlayerCollisionRadius = playerCollisionRadius + appleCollisionRadius + playerExtraCollisionDistance * 0.5f;
-        float spawnAppleCollisionRadius = 2 * appleCollisionRadius;
+        float spawnWallCollisionDistance = wallCollisionRadius + appleCollisionRadius;
+        float spawnPlayerCollisionDistance = playerCollisionRadius + appleCollisionRadius + playerExtraCollisionDistance;
+        float spawnAppleCollisionDistance = appleCollisionRadius + appleCollisionRadius;
         
         Vector3 spawnAreaMin = playableAreaMin + new Vector3(appleCollisionRadius, appleCollisionRadius, 0.0f);
         Vector3 spawnAreaMax = playableAreaMax - new Vector3(appleCollisionRadius, appleCollisionRadius, 0.0f);
         
-        int maxNbOfAttempts = 10;
+        int maxNbOfAttempts = 100;
         for (int nbOfAttempts = 0; nbOfAttempts < maxNbOfAttempts; nbOfAttempts++)
         {
             Vector2 newPosition = new Vector2(Random.Range(spawnAreaMin.x, spawnAreaMax.x), Random.Range(spawnAreaMin.y, spawnAreaMax.y));
@@ -108,7 +113,7 @@ public class gameManager : MonoBehaviour
                     continue;
                 Vector3 wallJPosition = walls[j].transform.position;
                 Vector3 vector = wallJPosition - new Vector3(newPosition.x, newPosition.y, 0.0f);
-                if (vector.magnitude < 2.0f * spawnWallCollisionRadius)
+                if (vector.magnitude < spawnWallCollisionDistance)
                 {
                     collisionFound = true;
                     break;
@@ -123,7 +128,7 @@ public class gameManager : MonoBehaviour
                     continue;
                 Vector3 playerJPosition = players[j].transform.position;
                 Vector3 vector = playerJPosition - new Vector3(newPosition.x, newPosition.y, 0.0f);
-                if (vector.magnitude < 2.0f * spawnPlayerCollisionRadius)
+                if (vector.magnitude < spawnPlayerCollisionDistance)
                 {
                     collisionFound = true;
                     break;
@@ -138,7 +143,7 @@ public class gameManager : MonoBehaviour
                     continue;
                 Vector3 appleJPosition = apples[j].transform.position;
                 Vector3 vector = appleJPosition - new Vector3(newPosition.x, newPosition.y, 0.0f);
-                if (vector.magnitude < 2.0f * spawnAppleCollisionRadius)
+                if (vector.magnitude < spawnAppleCollisionDistance)
                 {
                     collisionFound = true;
                     break;
@@ -177,7 +182,7 @@ public class gameManager : MonoBehaviour
         Vector3 spawnAreaMin = playableAreaMin + new Vector3(playerCollisionRadius, playerCollisionRadius, 0.0f);
         Vector3 spawnAreaMax = playableAreaMax - new Vector3(playerCollisionRadius, playerCollisionRadius, 0.0f);
 
-        int maxNbOfAttempts = 100;
+        int maxNbOfAttempts = 1000;
         for (int nbOfAttempts = 0; nbOfAttempts < maxNbOfAttempts; nbOfAttempts++)
         {
             Vector2 newPosition = new Vector2(Random.Range(spawnAreaMin.x, spawnAreaMax.x), Random.Range(spawnAreaMin.y, spawnAreaMax.y));
@@ -241,6 +246,8 @@ public class gameManager : MonoBehaviour
             if (players[i] != null)
                 continue;
             players[i] = SpawnRandomPlayer();
+            if (players[i] == null)
+                continue;   // SpawnRandomPlayer might fail...
             players[i].GetComponent<playerController>().playerId = i;
             GameObject newPlayerUI = (GameObject)Instantiate(playerUIModel, new Vector3(0,0,0), Quaternion.identity);
             newPlayerUI.GetComponent<playerUI>().init(i);
@@ -250,6 +257,8 @@ public class gameManager : MonoBehaviour
 
     void Start()
     {
+        lastAppleSpawnTime = Time.time;
+
         walls = new GameObject[maxNbOfWalls];
         players = new GameObject[maxNbOfPlayers];
         apples = new GameObject[maxNbOfApples];
@@ -263,6 +272,20 @@ public class gameManager : MonoBehaviour
 
     void FixedUpdate()
     {
+        float currentTime = Time.time;
+        if(currentTime > lastAppleSpawnTime + appleSpawnPeriod)
+        {
+            lastAppleSpawnTime = currentTime;
+            for (int i = 0; i < maxNbOfApples; i++)
+            {
+                if(apples[i] == null)
+                {
+                    apples[i] = SpawnRandomApple();
+                    break;
+                }
+            }
+
+        }
     }
 
     public void Collect(GameObject i_collectedObject, int i_playerId)
@@ -273,10 +296,15 @@ public class gameManager : MonoBehaviour
             {
                 if(i_collectedObject == apples[i])
                 {
-                    Destroy(i_collectedObject);
-                    apples[i] = null;
-                    playerUIs[i_playerId].GetComponent<playerUI>().gainApple();
-                    break;
+                    playerController playerCtrler = players[i_playerId].GetComponent<playerController>();
+                    if (playerCtrler.playerAmmo < 3)
+                    {
+                        playerCtrler.playerAmmo++;
+                        Destroy(i_collectedObject);
+                        apples[i] = null;
+                        playerUIs[i_playerId].GetComponent<playerUI>().gainApple();
+                        break;
+                    }
                 }
             }
         }
@@ -289,12 +317,18 @@ public class gameManager : MonoBehaviour
 
     public void Shoot(GameObject i_shooter)
     {
+        playerController playerCtrler = i_shooter.GetComponent<playerController>();
+        if (playerCtrler.playerAmmo <= 0)
+            return;
+        playerCtrler.playerAmmo--;
         Vector3 shooterDirectionNormalized = i_shooter.transform.right;
         shooterDirectionNormalized.Normalize();
         Vector3 shootingPosition = i_shooter.transform.position + shooterDirectionNormalized * playerSpawnCollisionRadius * 2.0f;
         GameObject missile = (GameObject)Instantiate(missileModel, shootingPosition, i_shooter.transform.rotation);
         missile.GetComponent<Rigidbody2D>().velocity = shooterDirectionNormalized * missileSpeed;
-        missile.GetComponent<missileController>().shooterId = i_shooter.GetComponent<playerController>().playerId;
+        int shooterId = i_shooter.GetComponent<playerController>().playerId;
+        missile.GetComponent<missileController>().shooterId = shooterId;
+        playerUIs[shooterId].GetComponent<playerUI>().loseApple();
     }
 
 
