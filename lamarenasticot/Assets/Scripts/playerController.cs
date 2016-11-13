@@ -194,8 +194,7 @@ public class playerController : MonoBehaviour
         if (playerState == PlayerState.eFire)
         {
             AnimateMove();
-            // TODO: decomment
-            // gm.Shoot(gameObject);
+            gm.Shoot(gameObject);
         }
 
         if (playerState == PlayerState.eDash)

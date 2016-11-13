@@ -291,6 +291,7 @@ public class gameManager : MonoBehaviour
         Vector3 shootingPosition = i_shooter.transform.position + shooterDirectionNormalized * playerSpawnCollisionRadius * 2.0f;
         GameObject missile = (GameObject)Instantiate(missileModel, shootingPosition, i_shooter.transform.rotation);
         missile.GetComponent<Rigidbody2D>().velocity = shooterDirectionNormalized * missileSpeed;
+        missile.GetComponent<missileController>().shooterId = i_shooter.GetComponent<playerController>().playerId;
     }
 
 
