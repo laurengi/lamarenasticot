@@ -96,6 +96,7 @@ public class playerController : MonoBehaviour
         {
             playerState = PlayerState.eIdle;
             playerMoveStartTime = Time.time;
+            playerMoveAsked.z = 3.0f;
             return;
         }
 
@@ -158,7 +159,8 @@ public class playerController : MonoBehaviour
         else
         {
             playerState = PlayerState.eIdle;
-            playerMoveStartTime = Time.time;
+            playerDashStartTime = Time.time;
+            playerDashAsked.z = 3.0f;
             return;
         }
 
@@ -195,27 +197,34 @@ public class playerController : MonoBehaviour
         // Idle state management
         if (playerState == PlayerState.eIdle)
         {
-            if (playerFireAsked.z != 0.0f)
+            if (playerFireAsked.z == 1.0f)
             {
                 playerState = PlayerState.eFire;
                 playerFireStartTime = Time.time;
+                playerFireAsked.z = 2.0f;
             }
-            else if (playerDashAsked.z != 0.0f)
+            else if (playerDashAsked.z == 1.0f)
             {
                 playerState = PlayerState.eDash;
                 playerDashStartTime = Time.time;
+                playerDashAsked.z = 2.0f;
             }
-            else if (playerMoveAsked.z != 0.0f)
+            else if (playerMoveAsked.z == 1.0f)
             {
                 playerState = PlayerState.eMove;
                 playerMoveStartTime = Time.time;
+                playerMoveAsked.z = 2.0f;
             }
         }
 
         if (playerState == PlayerState.eFire)
         {
             // AnimateMove();
-            gm.Shoot(gameObject);
+            // gm.Shoot(gameObject);
+
+            playerState = PlayerState.eIdle;
+            playerFireStartTime = Time.time;
+            playerFireAsked.z = 3.0f;
         }
 
         if (playerState == PlayerState.eDash)
@@ -230,21 +239,22 @@ public class playerController : MonoBehaviour
 
         // Cooldown solving
         if (playerState != PlayerState.eFire &&
-            playerFireAsked.z != 0.0f &&
+            playerFireAsked.z == 3.0f &&
             (Time.time - playerFireStartTime) >= setting_playerFireCooldown)
         {
             playerFireAsked.z = 0.0f;
         }
 
         if (playerState != PlayerState.eDash &&
-            playerDashAsked.z != 0.0f &&
+            playerDashAsked.z == 3.0f &&
             (Time.time - playerDashStartTime) >= setting_playerDashCooldown)
         {
             playerDashAsked.z = 0.0f;
+            Debug.Log(playerDashAsked.z.ToString());
         }
 
         if (playerState != PlayerState.eMove &&
-            playerMoveAsked.z != 0.0f)
+            playerMoveAsked.z == 3.0f)
         {
             playerMoveAsked.z = 0.0f;
         }
@@ -255,19 +265,31 @@ public class playerController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        float moveHorizontal = Input.GetAxis("p0.Horizontal");
-        float moveVertical = Input.GetAxis("p0.Vertical");
+        string header = "p" + playerId.ToString();
+
+        float moveHorizontal = Input.GetAxis(header + ".Horizontal");
+        float moveVertical = Input.GetAxis(header + ".Vertical");
         
         Vector3 motion = new Vector3(moveHorizontal, moveVertical, 0.0f);
         bool isMotion = (motion.x != 0 || motion.y != 0);
 
-        if (Input.GetButton("p0.Jump") && (playerDashAsked.z == 0.0f))
+        if (Input.GetButton(header + ".Jump") && (playerDashAsked.z == 0.0f))
+        {
+            Debug.Log(header + ".Jump");
             playerDashAsked = motion + new Vector3(0.0f, 0.0f, 1.0f);
-        else if (Input.GetButton("p0.Fire") && (playerFireAsked.z == 0.0f))
-            playerFireAsked = motion + new Vector3(0.0f, 0.0f, 1.0f);
-        else if (isMotion && playerMoveAsked.z == 0.0f)
-            playerMoveAsked = motion + new Vector3(0.0f, 0.0f, 1.0f);
+        }
 
+        if (Input.GetButton(header + ".Fire") && (playerFireAsked.z == 0.0f))
+        {
+            Debug.Log(header + ".Fire");
+            playerFireAsked = motion + new Vector3(0.0f, 0.0f, 1.0f);
+        }
+
+        if (isMotion && (playerMoveAsked.z == 0.0f))
+        {
+            playerMoveAsked = motion + new Vector3(0.0f, 0.0f, 1.0f);
+            Debug.Log(header + ".Move");
+        }
 
         ResolveState();
     }
