@@ -239,7 +239,7 @@ public class playerController : MonoBehaviour
         if (playerState == PlayerState.eFire)
         {
             // AnimateMove();
-            // gm.Shoot(gameObject);
+            gm.Shoot(gameObject);
 
             playerState = PlayerState.eIdle;
             playerFireStartTime = Time.time;

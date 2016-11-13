@@ -52,6 +52,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   appleModel: {fileID: 1000012034955328, guid: 0b40f39b3078e4648a9de5de66defb19, type: 2}
+  hatModel: {fileID: 1000012644451564, guid: 6aed455c0c5f3644e963eeccbb9612e7, type: 2}
   playerModel: {fileID: 1000011970959974, guid: 4193aca57ab72344ca736120ad301ce0,
     type: 2}
   missileModel: {fileID: 1000012803560102, guid: fe52136b5ea1a1d408dff788f7c29778,
@@ -63,5 +64,6 @@ MonoBehaviour:
   maxNbOfWalls: 6
   maxNbOfPlayers: 4
   maxNbOfApples: 10
+  maxNbOfHats: 2
   playerSpawnCollisionRadius: 0.75
   missileSpeed: 5

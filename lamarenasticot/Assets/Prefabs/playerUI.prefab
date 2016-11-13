@@ -261,6 +261,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47345a609bbe94810a009b884ddd49e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  face: {fileID: 1555911976834496}
   apple1: {fileID: 1134781019120682}
   apple2: {fileID: 1701492645368612}
   apple3: {fileID: 1612765097668722}

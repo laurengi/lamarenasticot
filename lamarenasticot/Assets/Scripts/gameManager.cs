@@ -458,7 +458,12 @@ public class gameManager : MonoBehaviour
 
     public void DamagePlayer(int i_playerId)
     {
-        // TODO stunned ? invulnerable ? lose hat ?
+        // lose a hat!
+        playerController playerCtrler = players[i_playerId].GetComponent<playerController>();
+        if (playerCtrler.nbOfCollectedHats <= 0)
+            return;
+        playerCtrler.nbOfCollectedHats--;
+        playerUIs[i_playerId].GetComponent<playerUI>().loseHat();
     }
 
     public void Shoot(GameObject i_shooter)
