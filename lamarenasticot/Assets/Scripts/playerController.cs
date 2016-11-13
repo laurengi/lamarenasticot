@@ -12,20 +12,14 @@ public class playerController : MonoBehaviour
     private GameObject playerNeckLow;
     private GameObject playerBottom;
 
-    // private float playerLength;
     private float playerInitialLength;
     private float playerSpriteLength;
-    private float playerGrowingSpeed;
-
-    private bool playerMoving;
-    private float playerMovingAngle;
-    private float playerMovingStartTime;
 
     ///////////////////////////////////////////////////////////////////////////
     /// Motion Setting
     public float setting_moveSpeed = 1.0f;
     public float setting_moveAnimationSpeed = 10.0f;
-    public float setting_moveNeckExtend = 0.05f;
+    public float setting_moveNeckExtend = 0.2f;
 
     private float setting_dashSpeed = 10.0f;
     private float setting_dashSlideTime = 0.5f;
@@ -50,7 +44,6 @@ public class playerController : MonoBehaviour
     private float playerDashCooldown;
     private float playerFireCooldown;
 
-
     enum PlayerState
     {
         eIdle, eMove, eFire, eDash,
@@ -59,7 +52,6 @@ public class playerController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        // playerSpeed = 2.0f;
         playerState = PlayerState.eIdle;
 
         playerHead = playerObject.transform.FindChild("Head").gameObject;
@@ -71,71 +63,14 @@ public class playerController : MonoBehaviour
         Vector3 playerColliderSize = playerCollider.bounds.size;
         playerInitialLength = playerColliderSize.x;
 
-        playerMoving = false;
-//         playerCollider.bounds.min;
-//         playerCollider.bounds.max;
-
         SpriteRenderer playerHeadSprite = playerHead.GetComponent<SpriteRenderer>();
         Vector3 playerPartSize = playerHeadSprite.bounds.size;
         playerSpriteLength = playerPartSize.x;
 
         float playerPartScaleRatio = playerColliderSize.x / playerPartSize.x;
-
-        Debug.Log("Before " + playerHeadSprite.bounds.size.ToString());
-
         playerObject.transform.localScale = new Vector3(playerPartScaleRatio, playerPartScaleRatio, 1.0f);
-
-        Debug.Log("After " + playerHeadSprite.bounds.size.ToString());
         playerSpriteLength = playerHeadSprite.bounds.size.x;
     }
-
-
-    /*
-    void SetupPlayer()
-    {
-        if (!playerMoving)
-            return;
-
-        float speed = 10.0f;
-        float t = (Time.time - playerMovingStartTime) * speed;
-        float neckExtend = 0.05f;
-        float playerLength = playerInitialLength * (1.0f + neckExtend * (1.0f + Mathf.Sin(t)));
-
-        float newPlayerGrowingSpeed = 0.5f * playerInitialLength * neckExtend * Mathf.Cos(t) * Time.deltaTime * speed * 1.5f * playerSpeed;
-        if (newPlayerGrowingSpeed > 0 && playerGrowingSpeed <= 0)
-        {
-            playerGrowingSpeed = newPlayerGrowingSpeed;
-            playerMoving = false;
-            return;
-        }
-
-        float headCenter = 0.5f * (playerLength - playerSpriteLength);
-        float bodyCenter = -0.5f * (playerLength - playerSpriteLength);
-        float partDelta = (bodyCenter - headCenter) / 6.0f;
-        float neckHighCenter = partDelta;
-        float neckLowCenter = -0.8f * partDelta;
-
-        playerHead.transform.localPosition = new Vector3(headCenter, 0.0f, 0.0f);
-        playerNeckHigh.transform.localPosition = new Vector3(neckHighCenter, 0.0f, 0.0f);
-        playerNeckLow.transform.localPosition = new Vector3(neckLowCenter, 0.0f, 0.0f);
-        // playerNeckHigh.transform.localPosition = new Vector3(2.0f, 0.0f, 0.0f);
-        // playerNeckLow.transform.localPosition = new Vector3(-2.0f, 0.0f, 0.0f);
-        playerBottom.transform.localPosition = new Vector3(bodyCenter, 0.0f, 0.0f);
-
-
-        // float newPlayerGrowingSpeed = 0.5f * playerInitialLength * neckExtend * Mathf.Cos(t) * Time.deltaTime * speed * 1.5f * playerSpeed;
-        // if (newPlayerGrowingSpeed < 0.0f && playerGrowingSpeed >= 0.0f)
-        //     playerPosition += new Vector2(bodyCenter, 0.0f);
-        playerGrowingSpeed = newPlayerGrowingSpeed;
-
-        // if (playerGrowingSpeed >= 0)
-        //     playerObject.transform.position = new Vector3(-bodyCenter, 0.0f);
-        // else
-
-        playerObject.transform.position += new Vector3(Mathf.Cos(playerMovingAngle), Mathf.Sin(playerMovingAngle)) * Mathf.Abs(playerGrowingSpeed);
-
-    }
-    */
 
     void AnimateMove()
     {
@@ -279,7 +214,6 @@ public class playerController : MonoBehaviour
             playerMoveAsked.z = 0.0f;
         }
 
-
         return playerState;
     }
 
@@ -301,47 +235,5 @@ public class playerController : MonoBehaviour
 
 
         ResolveState();
-
-        // if (Input.GetButton("Fire2"))
-        //     moveHorizontal = 1.0f;
-        // 
-        // if (Input.GetButton("Fire3"))
-        //     moveHorizontal = -1.0f;
-
-
-
-        /*
-        Vector3 movement = new Vector3(moveHorizontal, moveVertical, 0.0f);
-        float angle = Mathf.Atan2(movement.y, movement.x);
-
-        if (!playerMoving && (movement.x != 0 || movement.y != 0))
-        {
-            playerMoving = true;
-            playerMovingStartTime = Time.time;
-            playerGrowingSpeed = 1.0f;
-
-            playerMovingAngle = angle;
-            Quaternion rotation = new Quaternion();
-            rotation.eulerAngles = new Vector3(0.0f, 0.0f, playerMovingAngle * Mathf.Rad2Deg);
-            playerObject.transform.rotation = rotation;
-        }
-
-        // playerObject.transform.position += movement;
-
-        SetupPlayer();
-
-        if (movement.x != 0 || movement.y != 0)
-        {
-            if (!playerMoving)
-            {
-                playerMovingAngle = angle;
-                Quaternion rotation = new Quaternion();
-                rotation.eulerAngles = new Vector3(0.0f, 0.0f, playerMovingAngle * Mathf.Rad2Deg);
-                playerObject.transform.rotation = rotation;
-            }
-
-            playerMoving = true;
-        }
-        */
     }
 }
