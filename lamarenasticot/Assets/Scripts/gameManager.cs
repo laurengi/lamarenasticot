@@ -13,47 +13,45 @@ public class gameManager : MonoBehaviour
     public GameObject wallModel;
 
     private GameObject[] walls;
+    private GameObject[] players;
+    private GameObject[] apples;
 
-    public int nbOfWalls = 8;
+    public int maxNbOfWalls = 8;
+    public int maxNbOfPlayers = 4;
+    public int maxNbOfApples = 10;
 
-    Vector3 GetPlayableAreaMin()
+    private Vector3 playableAreaMin;
+    private Vector3 playableAreaMax;
+    
+    float GetCollisionRadius(GameObject i_object)
     {
-        return playableArea.transform.TransformPoint(playableArea.GetComponent<SpriteRenderer>().sprite.bounds.min);
-    }
-    Vector3 GetPlayableAreaMax()
-    {
-        return playableArea.transform.TransformPoint(playableArea.GetComponent<SpriteRenderer>().sprite.bounds.max);
+        Vector3 objectExtents = i_object.GetComponent<SpriteRenderer>().sprite.bounds.extents;
+        objectExtents.Scale(wallModel.transform.localScale); // for zoom
+        float objectCollisionRadius = Mathf.Sqrt(objectExtents.x * objectExtents.x + objectExtents.y * objectExtents.y);
+        return objectCollisionRadius;
     }
 
     void SpawnWalls()
     {
-        Vector3 wallExtents = wallModel.GetComponent<SpriteRenderer>().sprite.bounds.extents;
-        wallExtents.Scale(wallModel.transform.localScale); // for zoom
-        float wallCollisionRadius = Mathf.Sqrt(wallExtents.x * wallExtents.x + wallExtents.y * wallExtents.y);
-
-        //float playerCollisionRadius = 1.0f;
-        Vector3 playerExtents = playerModel.GetComponent<SpriteRenderer>().sprite.bounds.extents;
-        playerExtents.Scale(wallModel.transform.localScale); // for zoom
-        float playerCollisionRadius = Mathf.Sqrt(playerExtents.x * playerExtents.x + playerExtents.y * playerExtents.y);
-
+        float wallCollisionRadius = GetCollisionRadius(wallModel);
+        float playerCollisionRadius = GetCollisionRadius(playerModel);
         float spawnCollisionRadius = wallCollisionRadius + playerCollisionRadius;
-
-        Debug.Log(wallCollisionRadius);
-        Debug.Log(playerCollisionRadius);
-        Debug.Log(spawnCollisionRadius);
-
-        Vector3 playableAreaMin = GetPlayableAreaMin() + new Vector3(spawnCollisionRadius, spawnCollisionRadius, 0.0f);
-        Vector3 playableAreaMax = GetPlayableAreaMax() - new Vector3(spawnCollisionRadius, spawnCollisionRadius, 0.0f);
-
-        for (int i = 0; i < nbOfWalls; i++)
+        
+        Vector3 spawnAreaMin = playableAreaMin + new Vector3(spawnCollisionRadius, spawnCollisionRadius, 0.0f);
+        Vector3 spawnAreaMax = playableAreaMax - new Vector3(spawnCollisionRadius, spawnCollisionRadius, 0.0f);
+        
+        for (int i = 0; i < maxNbOfWalls; i++)
         {
             int maxNbOfAttempts = 10;
+            bool wallSpawned = false;
             for (int nbOfAttempts = 0; nbOfAttempts < maxNbOfAttempts; nbOfAttempts++)
             {
-                Vector2 newPosition = new Vector2(Random.Range(playableAreaMin.x, playableAreaMax.x), Random.Range(playableAreaMin.y, playableAreaMax.y));
+                Vector2 newPosition = new Vector2(Random.Range(spawnAreaMin.x, spawnAreaMax.x), Random.Range(spawnAreaMin.y, spawnAreaMax.y));
                 bool collisionFound = false;
                 for(int j = 0; j < i; j++)
                 {
+                    if (walls[j] == null)
+                        continue;
                     Vector3 wallJPosition = walls[j].transform.position;
                     Vector3 wallsVector = wallJPosition - new Vector3(newPosition.x, newPosition.y, 0.0f);
                     if (wallsVector.magnitude < 2.0f * spawnCollisionRadius)
@@ -68,16 +66,12 @@ public class gameManager : MonoBehaviour
                     float randomAngle = Random.Range(0.0f, 360.0f);
                     newRotation.eulerAngles = new Vector3(0.0f, 0.0f, randomAngle);
                     walls[i] = (GameObject)Instantiate(wallModel, newPosition, newRotation);
+                    wallSpawned = true;
                     break;
                 }
             }
-        }
-
-
-        for (int k = 0; k < nbOfWalls; k++)
-        {
-            Vector3 wallKPosition = walls[k].transform.position;
-            Debug.Log(wallKPosition);
+            if (!wallSpawned)
+                break;
         }
 
     }
@@ -87,32 +81,99 @@ public class gameManager : MonoBehaviour
 
     }
 
-    void SpawnRandomApple()
+    GameObject SpawnRandomApple()
     {
+        float wallCollisionRadius = GetCollisionRadius(wallModel);
+        float playerCollisionRadius = GetCollisionRadius(playerModel);
+        float appleCollisionRadius = GetCollisionRadius(appleModel);
+        float playerExtraCollisionDistance = playerCollisionRadius * 3;
 
+        float spawnWallCollisionRadius = wallCollisionRadius + appleCollisionRadius;
+        float spawnPlayerCollisionRadius = playerCollisionRadius + appleCollisionRadius + playerExtraCollisionDistance * 0.5f;
+        float spawnAppleCollisionRadius = 2 * appleCollisionRadius;
+        
+        Vector3 spawnAreaMin = playableAreaMin + new Vector3(appleCollisionRadius, appleCollisionRadius, 0.0f);
+        Vector3 spawnAreaMax = playableAreaMax - new Vector3(appleCollisionRadius, appleCollisionRadius, 0.0f);
+        
+        int maxNbOfAttempts = 10;
+        for (int nbOfAttempts = 0; nbOfAttempts < maxNbOfAttempts; nbOfAttempts++)
+        {
+            Debug.Log(nbOfAttempts);
+            Vector2 newPosition = new Vector2(Random.Range(spawnAreaMin.x, spawnAreaMax.x), Random.Range(spawnAreaMin.y, spawnAreaMax.y));
+            bool collisionFound = false;
+            // collision with walls
+            for (int j = 0; j < maxNbOfWalls; j++)
+            {
+                if (walls[j] == null)
+                    continue;
+                Vector3 wallJPosition = walls[j].transform.position;
+                Vector3 vector = wallJPosition - new Vector3(newPosition.x, newPosition.y, 0.0f);
+                if (vector.magnitude < 2.0f * spawnWallCollisionRadius)
+                {
+                    collisionFound = true;
+                    break;
+                }
+            }
+            if (collisionFound)
+                continue;
+            // collision with players
+            for (int j = 0; j < maxNbOfPlayers; j++)
+            {
+                if (players[j] == null)
+                    continue;
+                Vector3 playerJPosition = players[j].transform.position;
+                Vector3 vector = playerJPosition - new Vector3(newPosition.x, newPosition.y, 0.0f);
+                if (vector.magnitude < 2.0f * spawnPlayerCollisionRadius)
+                {
+                    collisionFound = true;
+                    break;
+                }
+            }
+            if (collisionFound)
+                continue;
+            // collision with apples
+            for (int j = 0; j < maxNbOfApples; j++)
+            {
+                if (apples[j] == null)
+                    continue;
+                Vector3 appleJPosition = apples[j].transform.position;
+                Vector3 vector = appleJPosition - new Vector3(newPosition.x, newPosition.y, 0.0f);
+                if (vector.magnitude < 2.0f * spawnAppleCollisionRadius)
+                {
+                    collisionFound = true;
+                    break;
+                }
+            }
+            if (!collisionFound)
+            {
+                GameObject newApple = (GameObject)Instantiate(appleModel, newPosition, Quaternion.identity);
+                return newApple;
+            }
+        }
+        return null;
     }
-
+    
     void SpawnObjects()
     {
-
-        Vector3 playableAreaMin = GetPlayableAreaMin();
-        Vector3 playableAreaMax = GetPlayableAreaMax();
-
-        for(int i = 0; i < 100; i++)
+        for (int i = 0; i < maxNbOfApples; i++)
         {
-            Vector2 position = new Vector2(Random.Range(playableAreaMin.x, playableAreaMax.x), Random.Range(playableAreaMin.y, playableAreaMax.y));
-            
-            Instantiate(appleModel, position, Quaternion.identity);
+            if (apples[i] != null)
+                continue;
+            apples[i] = SpawnRandomApple();
         }
 
     }
 
     void Start()
     {
-        walls = new GameObject[nbOfWalls];
+        walls = new GameObject[maxNbOfWalls];
+        players = new GameObject[maxNbOfPlayers];
+        apples = new GameObject[maxNbOfApples];
+        playableAreaMin = playableArea.transform.TransformPoint(playableArea.GetComponent<SpriteRenderer>().sprite.bounds.min);
+        playableAreaMax = playableArea.transform.TransformPoint(playableArea.GetComponent<SpriteRenderer>().sprite.bounds.max);
         SpawnWalls();
         SpawnPlayers();
-        SpawnObjects();
+        //SpawnObjects();
     }
 
     void FixedUpdate()
