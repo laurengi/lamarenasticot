@@ -5,8 +5,12 @@ public class playerController : MonoBehaviour
 {
     public int playerId = -1;
 
-    public GameObject playerObject;
+    private GameObject playerObject;
     // public float playerSpeed;
+
+
+    gameManager gm;
+
 
     private GameObject playerHead;
     private GameObject playerNeckHigh;
@@ -54,6 +58,10 @@ public class playerController : MonoBehaviour
     void Start()
     {
         playerState = PlayerState.eIdle;
+        gm = FindObjectOfType<gameManager>();
+
+        // GameObject playerObject = gameObject;
+        playerObject = gameObject;
 
         playerHead = playerObject.transform.FindChild("Head").gameObject;
         playerNeckHigh = playerObject.transform.FindChild("NeckHigh").gameObject;
@@ -186,6 +194,8 @@ public class playerController : MonoBehaviour
         if (playerState == PlayerState.eFire)
         {
             AnimateMove();
+            // TODO: decomment
+            // gm.Shoot(gameObject);
         }
 
         if (playerState == PlayerState.eDash)
@@ -246,7 +256,6 @@ public class playerController : MonoBehaviour
     {
         // TODO : store gm in private member and fill it in Start()
         Debug.Log("OnTriggerEnter");
-        gameManager gm = FindObjectOfType<gameManager>();
         if (other.gameObject.CompareTag("Apple"))
         {
             gm.Collect(other.gameObject, playerId);
